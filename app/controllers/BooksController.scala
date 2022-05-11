@@ -8,7 +8,10 @@ import repositories.BookRepository
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class BooksController @Inject()(val controllerComponents: ControllerComponents, dataRepository: BookRepository) extends BaseController {
+class BooksController @Inject() (
+    val controllerComponents: ControllerComponents,
+    dataRepository: BookRepository
+) extends BaseController {
 
   def getAll: Action[AnyContent] = Action {
     Ok(Json.toJson(dataRepository.getAllBooks))
@@ -19,11 +22,12 @@ class BooksController @Inject()(val controllerComponents: ControllerComponents, 
     dataRepository.getBook(bookId) foreach { book =>
       bookToReturn = book
     }
+    if (bookToReturn == null) throw new Exception(("Book not found"))
     Ok(Json.toJson(bookToReturn))
   }
 
-  def addBook() : Action[AnyContent] = Action {
-    implicit request => {
+  def addBook(): Action[AnyContent] = Action { implicit request =>
+    {
       val requestBody = request.body
       val bookJsonObject = requestBody.asJson
 

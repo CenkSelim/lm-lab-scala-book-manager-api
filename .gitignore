@@ -7,3 +7,10 @@ target
 /.project
 /.settings
 /RUNNING_PID
+/.vscode
+/.metals
+/.bloop
+/.scalafmt.conf
+project/.bloop/
+project/metals.sbt
+project/project/

@@ -40,10 +40,15 @@ class BookRepository {
     }
   }
 
-  def deleteBook(bookId: Long): Option[Boolean] = bookList.collectFirst {
-    case book if book.id == bookId =>
-      bookList -= (book)
-      true
+  def deleteBook(bookId: Long): Option[Boolean] = {
+    // If book exists then delete
+    if(bookList.exists(b => b.id == bookId)) {
+      bookList.collectFirst {
+        case book if book.id == bookId =>
+          bookList -= (book)
+          true
+      }
+    }
+    else None
   }
-
 }

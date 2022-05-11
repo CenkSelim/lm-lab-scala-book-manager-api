@@ -12,15 +12,16 @@ import org.mockito.Mockito.when
 import play.api.libs.json._
 import scala.collection.mutable
 
-class BooksControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting with MockitoSugar {
+class BooksControllerSpec
+    extends PlaySpec
+    with GuiceOneAppPerTest
+    with Injecting
+    with MockitoSugar {
 
   val mockDataService: BookRepository = mock[BookRepository]
-  var sampleBook: Option[Book] = Option(Book(2,
-    "Fantastic Mr. Fox",
-    "Roald Dahl",
-    "Brilliant",
-    "Childs fiction"
-  ))
+  var sampleBook: Option[Book] = Option(
+    Book(2, "The classic novel", "Anon", "Brilliant", "pseudo fiction")
+  )
 
   "BooksController GET allBooks" should {
 
@@ -29,7 +30,8 @@ class BooksControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injectin
       // Here we utilise Mockito for stubbing the request to getAllBooks
       when(mockDataService.getAllBooks).thenReturn(mutable.Set[Book]())
 
-      val controller = new BooksController(stubControllerComponents(), mockDataService)
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
       val allBooks = controller.getAll().apply(FakeRequest(GET, "/books"))
 
       status(allBooks) mustBe OK
@@ -41,7 +43,8 @@ class BooksControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injectin
       // Here we utilise Mockito for stubbing the request to getAllBooks
       when(mockDataService.getAllBooks) thenReturn mutable.Set[Book]()
 
-      val controller = new BooksController(stubControllerComponents(), mockDataService)
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
       val allBooks = controller.getAll().apply(FakeRequest(GET, "/books"))
 
       status(allBooks) mustBe OK
@@ -57,12 +60,28 @@ class BooksControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injectin
       // Here we utilise Mockito for stubbing the request to getBook
       when(mockDataService.getBook(1)) thenReturn sampleBook
 
-      val controller = new BooksController(stubControllerComponents(), mockDataService)
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
       val book = controller.getBook(1).apply(FakeRequest(GET, "/books/1"))
 
       status(book) mustBe OK
       contentType(book) mustBe Some("application/json")
     }
+
+    "return Book not found for unknown single book request" in {
+
+      // Here we utilise Mockito for stubbing the request to getBook
+      when(mockDataService.getBook(99)) thenReturn None
+
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
+
+      val thrown = intercept[Exception] {
+        val book = controller.getBook(99).apply(FakeRequest(GET, "/books/99"))
+      }
+      assert(thrown.getMessage === "Book not found")
+    }
+
   }
 
   "BooksController POST addBook" should {
@@ -72,15 +91,19 @@ class BooksControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injectin
       // Here we utilise Mockito for stubbing the request to addBook
       when(mockDataService.addBook(any())) thenReturn sampleBook
 
-
-      val controller = new BooksController(stubControllerComponents(), mockDataService)
-      val book = controller.addBook().apply(
-        FakeRequest(POST, "/books").withJsonBody(Json.toJson(sampleBook)))
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
+      val book = controller
+        .addBook()
+        .apply(
+          FakeRequest(POST, "/books").withJsonBody(Json.toJson(sampleBook))
+        )
 
       status(book) mustBe CREATED
       contentType(book) mustBe Some("application/json")
     }
   }
+
   "BooksController Delete Book" should {
 
     "return 200 OK for deleting a single book" in {
@@ -88,18 +111,15 @@ class BooksControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injectin
       // Here we utilise Mockito for stubbing the request to addBook for deletion
       when(mockDataService.addBook(any())) thenReturn sampleBook
 
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
 
-      val controller = new BooksController(stubControllerComponents(), mockDataService)
-      val book = controller.addBook().apply(
-        FakeRequest(POST, "/books").withJsonBody(Json.toJson(sampleBook)))
 
-      status(book) mustBe CREATED
-      contentType(book) mustBe Some("application/json")
-
-      val bookDelete = controller.deleteBook(2).apply(
-        FakeRequest(DELETE, "/books/2"))
+      val bookDelete =
+        controller.deleteBook(2).apply(FakeRequest(DELETE, "/books/2"))
 
       status(bookDelete) mustBe OK
     }
   }
+
 }
