@@ -19,7 +19,7 @@ class ErrorHandler extends HttpErrorHandler {
       {
         Future.successful(NotFound("We could not find your book"))
       } else {
-      Future.successful(InternalServerError("A server error occurred here : " + exception.getMessage))
+      Future.successful(InternalServerError("Book id already exist"))
     }
 
   }

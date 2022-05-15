@@ -30,7 +30,7 @@ class BookRepository {
   def addBook(book: Book): Option[Book] = {
     // If book already exists then return none
     if(bookList.exists(b => b.id == book.id)) {
-      None
+      throw new Exception("Book id already exist")
     }
     else {
       // otherwise return the saved after adding it
