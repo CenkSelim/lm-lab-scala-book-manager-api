@@ -11,6 +11,7 @@ libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
 libraryDependencies += "org.scalatestplus" %% "mockito-3-12" % "3.2.10.0" % Test
 
+Test / parallelExecution := false
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.techreturners.controllers._"

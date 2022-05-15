@@ -23,6 +23,12 @@ class BooksControllerSpec
   var sampleBook: Option[Book] = Option(
     Book(2, "The classic novel", "Anon", "Brilliant", "pseudo fiction")
   )
+  var sampleBook3: Option[Book] = Option(
+    Book(3, "The classic novel III", "Anon", "Brilliant", "pseudo fiction")
+  )
+  var duplicateSampleBook: Option[Book] = Option(
+    Book(1,"Programming in Scala, Fifth Edition","Martin Odersky","Scala programming language","Development")
+  )
 
   "BooksController GET allBooks" should {
 
@@ -85,6 +91,38 @@ class BooksControllerSpec
 
   }
 
+  "BooksController Delete Book" should {
+
+    "return 200 OK for deleting a single book" in {
+
+      // Here we utilise Mockito for stubbing the request to addBook
+      when(mockDataService.addBook(any())) thenReturn sampleBook3
+
+      val controller =
+        new BooksController(stubControllerComponents(), mockDataService)
+      val book = controller
+        .addBook()
+        .apply(
+          FakeRequest(POST, "/books").withJsonBody(Json.toJson(sampleBook3))
+        )
+
+      val bookDelete =
+        controller.deleteBook(3).apply(FakeRequest(DELETE, "/books/3"))
+
+      status(bookDelete) mustBe OK
+    }
+
+    "throw an error when deleting a book that doesn't exist" in {
+      when(mockDataService.deleteBook(anyLong())) thenThrow new Exception("Book not found")
+      val controller = new BooksController(stubControllerComponents(), mockDataService)
+      val exceptionCaught = intercept[Exception] {
+        controller.deleteBook(99).apply(FakeRequest(DELETE, "/books/99"))
+      }
+
+      exceptionCaught.getMessage mustBe "Book not found"
+    }
+  }
+
   "BooksController POST addBook" should {
 
     "return 200 OK for adding a single book" in {
@@ -103,34 +141,19 @@ class BooksControllerSpec
       status(book) mustBe CREATED
       contentType(book) mustBe Some("application/json")
     }
-  }
 
-  "BooksController Delete Book" should {
-
-    "return 200 OK for deleting a single book" in {
-
-      // Here we utilise Mockito for stubbing the request to addBook for deletion
-      when(mockDataService.addBook(any())) thenReturn sampleBook
-
-      val controller =
-        new BooksController(stubControllerComponents(), mockDataService)
-
-
-      val bookDelete =
-        controller.deleteBook(2).apply(FakeRequest(DELETE, "/books/2"))
-
-      status(bookDelete) mustBe OK
-    }
-
-    "throw an error when deleting a book that doesn't exist" in {
-      when(mockDataService.deleteBook(anyLong())) thenThrow new Exception("Book not found")
+    "throw an error when adding and a book id that already exist" in {
+      when(mockDataService.addBook(any())) thenThrow new Exception("Book id already exist")
       val controller = new BooksController(stubControllerComponents(), mockDataService)
       val exceptionCaught = intercept[Exception] {
-        controller.deleteBook(99).apply(FakeRequest(DELETE, "/books/99"))
+        controller.addBook().apply(FakeRequest(POST, "/books").withJsonBody(Json.toJson(duplicateSampleBook)))
       }
 
-      exceptionCaught.getMessage mustBe "Book not found"
+      exceptionCaught.getMessage mustBe "Book id already exist"
     }
+
   }
+
+
 
 }

@@ -27,6 +27,7 @@ class BookRepository {
     case book if book.id == bookId => book
   }
 
+  @throws(classOf[Exception])
   def addBook(book: Book): Option[Book] = {
     // If book already exists then return none
     if(bookList.exists(b => b.id == book.id)) {
