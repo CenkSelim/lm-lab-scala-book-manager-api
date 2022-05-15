@@ -45,6 +45,6 @@ class BooksController @Inject() (
 
   def deleteBook(bookId: Long): Action[AnyContent] = Action {
     dataRepository.deleteBook(bookId)
-    Ok
+    Ok (Json.toJson(s"Successfully deleted book with id $bookId"))
   }
 }

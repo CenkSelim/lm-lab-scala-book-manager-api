@@ -7,9 +7,10 @@ import play.api.test._
 import play.api.test.Helpers._
 import repositories.BookRepository
 import models.Book
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, anyLong}
 import org.mockito.Mockito.when
 import play.api.libs.json._
+
 import scala.collection.mutable
 
 class BooksControllerSpec
@@ -119,6 +120,16 @@ class BooksControllerSpec
         controller.deleteBook(2).apply(FakeRequest(DELETE, "/books/2"))
 
       status(bookDelete) mustBe OK
+    }
+
+    "throw an error when deleting a book that doesn't exist" in {
+      when(mockDataService.deleteBook(anyLong())) thenThrow new Exception("Book not found")
+      val controller = new BooksController(stubControllerComponents(), mockDataService)
+      val exceptionCaught = intercept[Exception] {
+        controller.deleteBook(99).apply(FakeRequest(DELETE, "/books/99"))
+      }
+
+      exceptionCaught.getMessage mustBe "Book not found"
     }
   }
 

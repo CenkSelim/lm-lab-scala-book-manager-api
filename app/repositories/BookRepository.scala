@@ -40,15 +40,12 @@ class BookRepository {
     }
   }
 
-  def deleteBook(bookId: Long): Option[Boolean] = {
-    // If book exists then delete
-    if(bookList.exists(b => b.id == bookId)) {
-      bookList.collectFirst {
-        case book if book.id == bookId =>
-          bookList -= (book)
-          true
-      }
+  @throws(classOf[Exception])
+  def deleteBook(bookId: Long): Unit = {
+    if(!bookList.exists(_.id == bookId)) {
+      throw new Exception("Book not found")
     }
-    else None
+    bookList --= bookList.filter( _.id == bookId)
   }
+
 }
