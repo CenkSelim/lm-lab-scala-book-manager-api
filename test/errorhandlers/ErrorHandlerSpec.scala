@@ -23,7 +23,7 @@ class ErrorHandlerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting w
 
       //then
       eventually {
-        status(responseFuture) mustBe StatusCodes.NotFound
+        status(responseFuture) mustBe 404
       }
     }
 
